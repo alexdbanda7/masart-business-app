@@ -34,10 +34,14 @@ def other_services_general_request():
 if not os.path.exists("generated_docs"):
     os.makedirs("generated_docs")
 
+# =======================
 # EMAIL CONFIGURATION
-EMAIL_ADDRESS = "your_gmail_address@gmail.com"  # <-- Replace with sender Gmail (must enable SMTP)
-EMAIL_PASSWORD = "your_gmail_app_password"      # <-- Replace with App Password for Gmail SMTP
-RECEIVER_EMAIL = "masartngs@gmail.com"          # Destination email
+# =======================
+EMAIL_ADDRESS = "masartngs@gmail.com"        # Your Gmail (sender)
+EMAIL_PASSWORD = "ujgd zqlf ugtp pwdd"   # Replace with your Gmail App Password
+RECEIVER_EMAIL = "masartngs@gmail.com"       # Destination (your inbox)
+# =======================
+
 
 @app.route('/form/<service_type>')
 def show_form(service_type):
@@ -51,6 +55,7 @@ def show_form(service_type):
     else:
         flash("Invalid service selected.")
         return redirect(url_for('welcome'))
+
 
 @app.route('/submit/<service_type>', methods=['POST'])
 def submit_form(service_type):
@@ -106,6 +111,14 @@ def submit_form(service_type):
         })
         template_file = 'graphic_design_template.txt'
 
+    elif service_type == 'general_request':
+        data.update({
+            'request_type': request.form.get('request_type'),
+            'details': request.form.get('details'),
+            'delivery': request.form.get('delivery'),
+        })
+        template_file = 'general_request_template.txt'
+
     else:
         flash("Invalid service submission.")
         return redirect(url_for('welcome'))
@@ -118,10 +131,12 @@ def submit_form(service_type):
 
     return render_template('success.html', file_name=os.path.basename(file_path))
 
+
 @app.route('/download/<file_name>')
 def download_file(file_name):
     path = os.path.join('generated_docs', file_name)
     return send_file(path, as_attachment=True)
+
 
 def generate_doc(data, template_file, service_type):
     with open(os.path.join('templates', template_file), 'r', encoding='utf-8') as f:
@@ -140,12 +155,18 @@ def generate_doc(data, template_file, service_type):
     doc.save(file_path)
     return file_path
 
+
 def send_email_with_attachment(data, file_path, service_type):
     msg = EmailMessage()
     msg['Subject'] = f"New {service_type.replace('_', ' ').title()} Submission from {data.get('client_name')}"
     msg['From'] = EMAIL_ADDRESS
     msg['To'] = RECEIVER_EMAIL
 
+    # Set Reply-To so you can reply directly to the client
+    if data.get('email'):
+        msg['Reply-To'] = data.get('email')
+
+    # Email body
     body = f"""
 New {service_type.replace('_', ' ').title()} submission received.
 
@@ -154,23 +175,30 @@ Phone Number: {data.get('phone_number')}
 Email: {data.get('email')}
 Submitted At: {data.get('submission_date')}
 
-Please find the attached document for details.
+Please find the attached document for more details.
     """
     msg.set_content(body)
 
+    # Attach generated document
     with open(file_path, 'rb') as f:
         file_data = f.read()
     filename = os.path.basename(file_path)
-    msg.add_attachment(file_data, maintype='application', subtype='vnd.openxmlformats-officedocument.wordprocessingml.document', filename=filename)
+    msg.add_attachment(
+        file_data,
+        maintype='application',
+        subtype='vnd.openxmlformats-officedocument.wordprocessingml.document',
+        filename=filename
+    )
 
-    # Connect and send email
+    # Send email
     try:
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
             smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
             smtp.send_message(msg)
-        print(f"Email sent to {RECEIVER_EMAIL}")
+        print(f"✅ Email sent to {RECEIVER_EMAIL}")
     except Exception as e:
-        print(f"Failed to send email: {e}")
+        print(f"❌ Failed to send email: {e}")
+
 
 if __name__ == '__main__':
     app.run(debug=True)

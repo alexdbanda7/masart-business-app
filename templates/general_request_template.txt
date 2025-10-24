@@ -1,0 +1,12 @@
+General Request Submission
+--------------------------
+
+Client Name: {{ client_name }}
+Email: {{ email }}
+Phone Number: {{ phone_number }}
+Request Type: {{ request_type }}
+Preferred Delivery/Completion Date: {{ delivery }}
+Submitted At: {{ submission_date }}
+
+Details:
+{{ details }}
