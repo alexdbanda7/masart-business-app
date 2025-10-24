@@ -1,0 +1,89 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f4f6f7;
+  margin: 0; 
+  padding: 20px;
+  text-align: center; /* center text in body */
+}
+
+.logo {
+  display: block;
+  margin: 0 auto 20px;
+  width: 150px;
+  height: auto;
+}
+
+.container {
+  max-width: 700px;
+  margin: auto;
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  text-align: center; /* center text inside container */
+}
+
+h1, h2 {
+  color: #0a4c71;
+}
+
+label {
+  display: block;
+  margin-top: 15px;
+  font-weight: 600;
+  text-align: left; /* keep labels left aligned */
+}
+
+input, textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* Unified button styling */
+button, .btn, .download-btn, .back-btn {
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 12px 25px;
+  margin: 15px 10px;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  cursor: pointer;
+  min-width: 160px;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  color: white;
+}
+
+/* Main buttons (Submit, Business Plan, etc.) */
+button, .btn, .download-btn {
+  background-color: #0a4c71;
+}
+
+button:hover, .btn:hover, .download-btn:hover {
+  background-color: #094a63;
+  transform: translateY(-2px);
+}
+
+/* Back button */
+.back-btn {
+  background-color: #6c757d;
+}
+
+.back-btn:hover {
+  background-color: #5a6268;
+  transform: translateY(-2px);
+}
+
+.button-group a {
+  margin-right: 10px;
+}
+
+/* Optional: make textarea a bit taller for comfort */
+textarea {
+  height: 120px;
+}

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Choose Business Service</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container" style="text-align: center;">
+    <h2>Select Your Service</h2>
+    <p>Please choose whether you want us to prepare a Business Plan or a Business Profile.</p>
+
+    <div class="button-group" style="margin-top: 30px;">
+      <a href="{{ url_for('show_form', service_type='business_plan') }}" class="btn">Business Plan</a>
+      <a href="{{ url_for('show_form', service_type='business_profile') }}" class="btn">Business Profile</a>
+      <a href="{{ url_for('welcome') }}" class="btn" style="background: #888;">← Back to Home</a>
+    </div>
+  </div>
+</body>
+</html>

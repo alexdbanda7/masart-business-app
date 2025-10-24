@@ -1,0 +1,37 @@
+BUSINESS PLAN FOR {{ business_name }}
+
+Client Name: {{ client_name }}
+Phone: {{ phone_number }}
+Email: {{ email }}
+Submitted on: {{ submission_date }}
+
+Owner: {{ owner_name }}
+
+Mission:
+{{ mission }}
+
+Vision:
+{{ vision }}
+
+Products and Services:
+{{ products }}
+
+Target Market:
+{{ target_market }}
+
+Competitors:
+{{ competitors }}
+
+Marketing Strategy:
+{{ marketing_strategy }}
+
+Financial Overview:
+Estimated Monthly Revenue: {{ revenue }}
+Estimated Monthly Expenses: {{ expenses }}
+Funding Needed: {{ funding }}
+
+Conclusion:
+{{ conclusion }}
+
+---
+Generated automatically by MAS Art & General Supplies.

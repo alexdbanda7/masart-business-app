@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome | MAS Art & General Supplies</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body {
+      background: #f4f6f8;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    .welcome-container {
+      background: #fff;
+      max-width: 900px;
+      margin: 60px auto;
+      padding: 50px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .logo {
+      display: block;
+      margin: 0 auto 25px auto;
+      max-width: 160px;
+      border-radius: 8px;
+    }
+
+    h1 {
+      color: #2c3e50;
+    }
+
+    p.description {
+      text-align: center;
+      line-height: 1.7;
+      color: #444;
+      margin: 20px 0 40px 0;
+      font-size: 16px;
+      white-space: pre-line;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 15px 30px;
+      background: linear-gradient(90deg, #007bff, #00b4d8);
+      color: white;
+      text-decoration: none;
+      font-size: 18px;
+      border-radius: 8px;
+      margin: 15px;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: linear-gradient(90deg, #0056b3, #0096c7);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="welcome-container">
+    <!-- Logo now inside the container -->
+    <img src="{{ url_for('static', filename='mas_logo.png') }}" alt="MAS Art & General Supplies Logo" class="logo">
+
+    <h1>Welcome to MAS Art & General Supplies</h1>
+
+    <p class="description">
+      MAS Art & General Supplies is a dynamic and innovative business dedicated to providing
+      top-notch stationery, graphic design, advertising (Business Profile and Business Plan),
+      printing, and branding services. We aim to be your one-stop solution for all your creative
+      and office supply needs.
+
+      Our commitment to quality and customer satisfaction sets us apart. Whether you need
+      custom-designed promotional materials or everyday office supplies, we are here to deliver excellence.
+
+      MAS Art & General Supplies is recognized by the Malawi government and is a registered company under
+      the Malawi Business Registration Act (No. 12 of 2012).
+    </p>
+
+    <h3 style="margin-top: 40px; color: #2c3e50;">What would you like us to help you with today?</h3>
+
+    <!-- Three main service buttons -->
+    <a href="{{ url_for('services_business') }}" class="btn">Business Plan / Profile</a>
+    <a href="{{ url_for('services_graphic') }}" class="btn">Graphic Design</a>
+    <a href="{{ url_for('services_other') }}" class="btn">Other Services</a>
+  </div>
+
+</body>
+</html>

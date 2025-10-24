@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Business Plan Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h2>Business Plan Data Collection</h2>
+    <form action="/submit" method="POST">
+      <label>Business Name:</label>
+      <input name="business_name" required>
+
+      <label>Owner Name:</label>
+      <input name="owner_name" required>
+
+      <label>Mission:</label>
+      <textarea name="mission" rows="3"></textarea>
+
+      <label>Vision:</label>
+      <textarea name="vision" rows="3"></textarea>
+
+      <label>Products/Services:</label>
+      <textarea name="products" rows="3"></textarea>
+
+      <label>Target Market:</label>
+      <textarea name="target_market" rows="3"></textarea>
+
+      <label>Competitors:</label>
+      <textarea name="competitors" rows="3"></textarea>
+
+      <label>Marketing Strategy:</label>
+      <textarea name="marketing_strategy" rows="3"></textarea>
+
+      <label>Monthly Revenue (estimate):</label>
+      <input name="revenue">
+
+      <label>Monthly Expenses (estimate):</label>
+      <input name="expenses">
+
+      <label>Funding Needed:</label>
+      <input name="funding">
+
+      <label>Conclusion/Notes:</label>
+      <textarea name="conclusion" rows="3"></textarea>
+
+      <button type="submit">Generate Business Plan</button>
+    </form>
+  </div>
+</body>
+</html>

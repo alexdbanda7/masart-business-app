@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Choose Other Services</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container" style="text-align: center;">
+    <h2>Other Services</h2>
+    <p>Select the service you are interested in:</p>
+
+    <div class="button-group" style="margin-top: 30px;">
+      <a href="{{ url_for('show_form', service_type='graphic_design') }}" class="btn">Graphic Design</a>
+      <a href="{{ url_for('other_services_general_request') }}" class="btn">General Request</a>
+
+      <!-- Future options can go here -->
+    </div>
+  </div>
+</body>
+</html>

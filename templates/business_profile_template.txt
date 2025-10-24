@@ -1,0 +1,27 @@
+BUSINESS PROFILE FOR {{ business_name }}
+
+Client Name: {{ client_name }}
+Phone: {{ phone_number }}
+Email: {{ email }}
+Submitted on: {{ submission_date }}
+
+Business Type: {{ business_type }}
+Established Year: {{ established_year }}
+Location: {{ location }}
+
+Services Offered:
+{{ services_offered }}
+
+Achievements:
+{{ achievements }}
+
+Staff Count: {{ staff_count }}
+
+Contact Information:
+{{ contact_info }}
+
+Additional Notes:
+{{ additional_notes }}
+
+---
+Generated automatically by MAS Art & General Supplies.

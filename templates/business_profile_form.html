@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Business Profile Form</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h2>Business Profile Data Collection</h2>
+    <form action="{{ url_for('submit_form', service_type='business_profile') }}" method="POST">
+
+      <label>Client Full Name:</label>
+      <input name="client_name" required>
+
+      <label>Phone Number:</label>
+      <input name="phone_number" required>
+
+      <label>Email:</label>
+      <input name="email" type="email" required>
+
+      <label>Business Name:</label>
+      <input name="business_name" required>
+
+      <label>Business Type:</label>
+      <input name="business_type">
+
+      <label>Established Year:</label>
+      <input name="established_year" type="number" min="1900" max="2100">
+
+      <label>Location:</label>
+      <input name="location">
+
+      <label>Services Offered:</label>
+      <textarea name="services_offered" rows="3"></textarea>
+
+      <label>Achievements:</label>
+      <textarea name="achievements" rows="3"></textarea>
+
+      <label>Staff Count:</label>
+      <input name="staff_count" type="number" min="0">
+
+      <label>Contact Information:</label>
+      <textarea name="contact_info" rows="3"></textarea>
+
+      <label>Additional Notes:</label>
+      <textarea name="additional_notes" rows="3"></textarea>
+
+      <button type="submit">Request Business Profile</button>
+      <a href="{{ url_for('welcome') }}" class="btn" style="background: #888;">← Back to Home</a>
+
+    </form>
+  </div>
+</body>
+</html>

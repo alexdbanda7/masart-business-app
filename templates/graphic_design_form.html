@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Graphic Design Service Form</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h2>Graphic Design Service Request</h2>
+    <form action="{{ url_for('submit_form', service_type='graphic_design') }}" method="POST">
+
+      <label>Client Full Name:</label>
+      <input name="client_name" required>
+
+      <label>Phone Number:</label>
+      <input name="phone_number" required>
+
+      <label>Email:</label>
+      <input name="email" type="email" required>
+
+      <label>Project Name:</label>
+      <input name="project_name" required>
+
+      <label>Design Type (e.g. logo, flyer, brochure):</label>
+      <input name="design_type" required>
+
+      <label>Details of the Design:</label>
+      <textarea name="details" rows="4"></textarea>
+
+      <label>Deadline (if any):</label>
+      <input name="deadline" type="date">
+
+      <label>Budget Estimate:</label>
+      <input name="budget" type="number" min="0">
+
+      <label>Additional Notes:</label>
+      <textarea name="additional_notes" rows="3"></textarea>
+
+      <button type="submit">Submit Details</button>
+      <a href="{{ url_for('welcome') }}" class="btn" style="background: #888;">← Back Home</a>
+
+    </form>
+  </div>
+</body>
+</html>
