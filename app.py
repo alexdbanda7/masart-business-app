@@ -7,7 +7,7 @@ import smtplib
 from email.message import EmailMessage
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key_here'  # Needed for flashing messages
+app.secret_key = os.environ.get('SECRET_KEY', 'dev_secret_key')  # Needed for flashing messages
 
 @app.route('/')
 def welcome():
