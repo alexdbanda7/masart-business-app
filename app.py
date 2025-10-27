@@ -37,9 +37,9 @@ if not os.path.exists("generated_docs"):
 # =======================
 # EMAIL CONFIGURATION
 # =======================
-EMAIL_ADDRESS = "masartngs@gmail.com"        # Your Gmail (sender)
-EMAIL_PASSWORD = "ujgd zqlf ugtp pwdd"   # Replace with your Gmail App Password
-RECEIVER_EMAIL = "masartngs@gmail.com"       # Destination (your inbox)
+EMAIL_ADDRESS = os.environ.get("EMAIL_USER")        # Your Gmail (sender)
+EMAIL_PASSWORD = os.environ.get("EMAIL_PASS")  # Replace with your Gmail App Password
+RECEIVER_EMAIL = os.environ.get("RECEIVER_EMAIL", EMAIL_ADDRESS)      # Destination (your inbox)
 # =======================
 
 
