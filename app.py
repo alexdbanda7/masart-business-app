@@ -37,9 +37,9 @@ if not os.path.exists("generated_docs"):
 # =======================
 # EMAIL CONFIGURATION
 # =======================
-EMAIL_ADDRESS = os.environ.get("EMAIL_USER")        # Your Gmail (sender)
-EMAIL_PASSWORD = os.environ.get("EMAIL_PASS")  # Replace with your Gmail App Password
-RECEIVER_EMAIL = os.environ.get("RECEIVER_EMAIL", EMAIL_ADDRESS)      # Destination (your inbox)
+EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
+EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
+RECEIVER_EMAIL = os.environ.get("RECEIVER_EMAIL", EMAIL_ADDRESS)
 # =======================
 
 
@@ -126,8 +126,13 @@ def submit_form(service_type):
     # Generate document
     file_path = generate_doc(data, template_file, service_type)
 
-    # Send email with attachment
-    send_email_with_attachment(data, file_path, service_type)
+    # Send email with attachment, handle errors gracefully
+    try:
+        send_email_with_attachment(data, file_path, service_type)
+        flash("Form submitted successfully! Check your email for confirmation.")
+    except Exception as e:
+        print(f"❌ Email sending failed: {e}")
+        flash("Form submitted but failed to send email. We will contact you soon.")
 
     return render_template('success.html', file_name=os.path.basename(file_path))
 
@@ -157,6 +162,9 @@ def generate_doc(data, template_file, service_type):
 
 
 def send_email_with_attachment(data, file_path, service_type):
+    if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
+        raise Exception("Email credentials are not set in environment variables.")
+
     msg = EmailMessage()
     msg['Subject'] = f"New {service_type.replace('_', ' ').title()} Submission from {data.get('client_name')}"
     msg['From'] = EMAIL_ADDRESS
@@ -191,13 +199,10 @@ Please find the attached document for more details.
     )
 
     # Send email
-    try:
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-            smtp.send_message(msg)
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        smtp.send_message(msg)
         print(f"✅ Email sent to {RECEIVER_EMAIL}")
-    except Exception as e:
-        print(f"❌ Failed to send email: {e}")
 
 
 if __name__ == '__main__':

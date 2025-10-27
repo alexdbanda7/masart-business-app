@@ -8,6 +8,18 @@
 <body>
   <div class="container">
     <h2>Graphic Design Service Request</h2>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for message in messages %}
+            <p>{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
     <form action="{{ url_for('submit_form', service_type='graphic_design') }}" method="POST">
 
       <label>Client Full Name:</label>
