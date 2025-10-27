@@ -42,6 +42,17 @@ input, textarea {
   border-radius: 4px;
   box-sizing: border-box;
 }
+/* email flash massage */
+.flash-messages {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  background-color: #f8d7da; /* red-ish for errors */
+  color: #721c24;
+}
+.flash-messages p {
+  margin: 0;
+}
 
 /* Unified button styling */
 button, .btn, .download-btn, .back-btn {
