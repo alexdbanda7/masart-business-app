@@ -198,13 +198,9 @@ Please find the attached document for more details.
         filename=filename
     )
 
-    # Send email using SendGrid SMTP
-    smtp_server = 'smtp.sendgrid.net'
-    smtp_port = 587
-
-    with smtplib.SMTP(smtp_server, smtp_port) as smtp:
-        smtp.starttls()
-        smtp.login("apikey", EMAIL_PASSWORD)  # "apikey" is the username literally
+    # Send email
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         smtp.send_message(msg)
         print(f"✅ Email sent to {RECEIVER_EMAIL}")
 
