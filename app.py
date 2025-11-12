@@ -7,7 +7,7 @@ import smtplib
 from email.message import EmailMessage
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'dev_secret_key')
+app.secret_key = os.environ.get('SECRET_KEY', 'dev_secret_key')  # Needed for flashing messages
 
 @app.route('/')
 def welcome():
@@ -29,7 +29,8 @@ def services_other():
 def other_services_general_request():
     return render_template('general_request.html')
 
-# Create folder if not present
+
+# Ensure folder exists
 if not os.path.exists("generated_docs"):
     os.makedirs("generated_docs")
 
@@ -40,6 +41,7 @@ EMAIL_ADDRESS = os.environ.get("EMAIL_USER")
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASS")
 RECEIVER_EMAIL = os.environ.get("RECEIVER_EMAIL", EMAIL_ADDRESS)
 # =======================
+
 
 @app.route('/form/<service_type>')
 def show_form(service_type):
@@ -54,9 +56,12 @@ def show_form(service_type):
         flash("Invalid service selected.")
         return redirect(url_for('welcome'))
 
+
 @app.route('/submit/<service_type>', methods=['POST'])
 def submit_form(service_type):
     service_type = service_type.lower()
+
+    # Common fields
     data = {
         'client_name': request.form.get('client_name'),
         'phone_number': request.form.get('phone_number'),
@@ -118,27 +123,32 @@ def submit_form(service_type):
         flash("Invalid service submission.")
         return redirect(url_for('welcome'))
 
-    # Generate Word doc
+    # Generate document
     file_path = generate_doc(data, template_file, service_type)
 
+    # Send email with attachment, handle errors gracefully
     try:
         send_email_with_attachment(data, file_path, service_type)
-        flash("✅ Your form was submitted successfully! MAS Art & General Supplies will review it soon.")
+        flash("Form submitted successfully! Check your email for confirmation.")
     except Exception as e:
         print(f"❌ Email sending failed: {e}")
-        flash("Your form was received but we couldn’t send the email. We’ll contact you manually.")
+        flash("Form submitted but failed to send email. We will contact you soon.")
 
     return render_template('success.html', file_name=os.path.basename(file_path))
+
 
 @app.route('/download/<file_name>')
 def download_file(file_name):
     path = os.path.join('generated_docs', file_name)
     return send_file(path, as_attachment=True)
 
+
+
 def generate_doc(data, template_file, service_type):
     with open(os.path.join('templates', template_file), 'r', encoding='utf-8') as f:
         template_text = f.read()
-    rendered = Template(template_text).render(data)
+    template = Template(template_text)
+    rendered = template.render(data)
 
     doc = Document()
     for line in rendered.split('\n'):
@@ -151,6 +161,7 @@ def generate_doc(data, template_file, service_type):
     doc.save(file_path)
     return file_path
 
+
 def send_email_with_attachment(data, file_path, service_type):
     if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
         raise Exception("Email credentials are not set in environment variables.")
@@ -159,9 +170,12 @@ def send_email_with_attachment(data, file_path, service_type):
     msg['Subject'] = f"New {service_type.replace('_', ' ').title()} Submission from {data.get('client_name')}"
     msg['From'] = EMAIL_ADDRESS
     msg['To'] = RECEIVER_EMAIL
+
+    # Set Reply-To so you can reply directly to the client
     if data.get('email'):
         msg['Reply-To'] = data.get('email')
 
+    # Email body
     body = f"""
 New {service_type.replace('_', ' ').title()} submission received.
 
@@ -170,28 +184,27 @@ Phone Number: {data.get('phone_number')}
 Email: {data.get('email')}
 Submitted At: {data.get('submission_date')}
 
-Please find the attached document for review.
+Please find the attached document for more details.
     """
     msg.set_content(body)
 
+    # Attach generated document
     with open(file_path, 'rb') as f:
         file_data = f.read()
-        msg.add_attachment(
-            file_data,
-            maintype='application',
-            subtype='vnd.openxmlformats-officedocument.wordprocessingml.document',
-            filename=os.path.basename(file_path)
-        )
+    filename = os.path.basename(file_path)
+    msg.add_attachment(
+        file_data,
+        maintype='application',
+        subtype='vnd.openxmlformats-officedocument.wordprocessingml.document',
+        filename=filename
+    )
 
-    # ✅ Use SendGrid SMTP (NOT Gmail)
-    smtp_server = 'smtp.sendgrid.net'
-    smtp_port = 587
-
-    with smtplib.SMTP(smtp_server, smtp_port) as smtp:
-        smtp.starttls()
-        smtp.login('apikey', EMAIL_PASSWORD)  # Username must literally be "apikey"
+    # Send email
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         smtp.send_message(msg)
         print(f"✅ Email sent to {RECEIVER_EMAIL}")
+
 
 if __name__ == '__main__':
     app.run(debug=True)
