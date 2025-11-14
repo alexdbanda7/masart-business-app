@@ -2,18 +2,20 @@ from flask import Flask, render_template, request, send_file, redirect, url_for,
 from jinja2 import Template
 from docx import Document
 import os
+from dotenv import load_dotenv
 from datetime import datetime
 import requests
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'dev_secret_key')
+app.secret_key = os.environ.get('e28dae81fd1d2c85b09bd3af3386c871', 'dev_secret_key')
 
 # ============================
 # RESEND EMAIL CONFIGURATION
 # ============================
-RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
-EMAIL_SENDER = os.environ.get("EMAIL_SENDER")  # Your verified Resend sender email
-RECEIVER_EMAIL = os.environ.get("RECEIVER_EMAIL")  # Where submissions should be sent
+load_dotenv()  # loads variables from .env
+RESEND_API_KEY = os.environ.get("re_ariaGQ4K_AkyHhdGwajBAnuxahtM5BcEj")
+EMAIL_SENDER = os.environ.get("masartngs@gmail.com")  # Your verified Resend sender email
+RECEIVER_EMAIL = os.environ.get("masartngs@gmail.com")  # Where submissions should be sent
 
 
 # ============================
