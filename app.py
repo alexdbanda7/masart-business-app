@@ -3,11 +3,22 @@ from jinja2 import Template
 from docx import Document
 import os
 from datetime import datetime
-import smtplib
-from email.message import EmailMessage
+import requests
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'dev_secret_key')  # Needed for flashing messages
+app.secret_key = os.environ.get('SECRET_KEY', 'dev_secret_key')
+
+# ============================
+# RESEND EMAIL CONFIGURATION
+# ============================
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
+EMAIL_SENDER = os.environ.get("EMAIL_SENDER")  # Your verified Resend sender email
+RECEIVER_EMAIL = os.environ.get("RECEIVER_EMAIL")  # Where submissions should be sent
+
+
+# ============================
+# ROUTES
+# ============================
 
 @app.route('/')
 def welcome():
@@ -30,38 +41,33 @@ def other_services_general_request():
     return render_template('general_request.html')
 
 
-# Ensure folder exists
+# Ensure storage folder exists
 if not os.path.exists("generated_docs"):
     os.makedirs("generated_docs")
-
-# =======================
-# EMAIL CONFIGURATION
-# =======================
-EMAIL_ADDRESS = os.environ.get("EMAIL_USER")
-EMAIL_PASSWORD = os.environ.get("EMAIL_PASS")
-RECEIVER_EMAIL = os.environ.get("RECEIVER_EMAIL", EMAIL_ADDRESS)
-# =======================
 
 
 @app.route('/form/<service_type>')
 def show_form(service_type):
     service_type = service_type.lower()
-    if service_type == 'business_plan':
-        return render_template('business_plan_form.html')
-    elif service_type == 'business_profile':
-        return render_template('business_profile_form.html')
-    elif service_type == 'graphic_design':
-        return render_template('graphic_design_form.html')
-    else:
-        flash("Invalid service selected.")
-        return redirect(url_for('welcome'))
+    match service_type:
+        case 'business_plan':
+            return render_template('business_plan_form.html')
+        case 'business_profile':
+            return render_template('business_profile_form.html')
+        case 'graphic_design':
+            return render_template('graphic_design_form.html')
+        case 'general_request':
+            return render_template('general_request_form.html')
+        case _:
+            flash("Invalid service selected.")
+            return redirect(url_for('welcome'))
 
 
 @app.route('/submit/<service_type>', methods=['POST'])
 def submit_form(service_type):
     service_type = service_type.lower()
 
-    # Common fields
+    # Common form fields
     data = {
         'client_name': request.form.get('client_name'),
         'phone_number': request.form.get('phone_number'),
@@ -69,70 +75,59 @@ def submit_form(service_type):
         'submission_date': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
+    # Service-specific fields
+    template_file = None
+
     if service_type == 'business_plan':
-        data.update({
-            'business_name': request.form.get('business_name'),
-            'owner_name': request.form.get('owner_name'),
-            'mission': request.form.get('mission'),
-            'vision': request.form.get('vision'),
-            'products': request.form.get('products'),
-            'target_market': request.form.get('target_market'),
-            'competitors': request.form.get('competitors'),
-            'marketing_strategy': request.form.get('marketing_strategy'),
-            'revenue': request.form.get('revenue'),
-            'expenses': request.form.get('expenses'),
-            'funding': request.form.get('funding'),
-            'conclusion': request.form.get('conclusion'),
-        })
         template_file = 'business_plan_template.txt'
+        keys = [
+            'business_name', 'owner_name', 'mission', 'vision',
+            'products', 'target_market', 'competitors',
+            'marketing_strategy', 'revenue', 'expenses',
+            'funding', 'conclusion'
+        ]
+        for k in keys:
+            data[k] = request.form.get(k)
 
     elif service_type == 'business_profile':
-        data.update({
-            'business_name': request.form.get('business_name'),
-            'business_type': request.form.get('business_type'),
-            'established_year': request.form.get('established_year'),
-            'location': request.form.get('location'),
-            'services_offered': request.form.get('services_offered'),
-            'achievements': request.form.get('achievements'),
-            'staff_count': request.form.get('staff_count'),
-            'contact_info': request.form.get('contact_info'),
-            'additional_notes': request.form.get('additional_notes'),
-        })
         template_file = 'business_profile_template.txt'
+        keys = [
+            'business_name', 'business_type', 'established_year',
+            'location', 'services_offered', 'achievements',
+            'staff_count', 'contact_info', 'additional_notes'
+        ]
+        for k in keys:
+            data[k] = request.form.get(k)
 
     elif service_type == 'graphic_design':
-        data.update({
-            'project_name': request.form.get('project_name'),
-            'design_type': request.form.get('design_type'),
-            'details': request.form.get('details'),
-            'deadline': request.form.get('deadline'),
-            'budget': request.form.get('budget'),
-            'additional_notes': request.form.get('additional_notes'),
-        })
         template_file = 'graphic_design_template.txt'
+        keys = [
+            'project_name', 'design_type', 'details',
+            'deadline', 'budget', 'additional_notes'
+        ]
+        for k in keys:
+            data[k] = request.form.get(k)
 
     elif service_type == 'general_request':
-        data.update({
-            'request_type': request.form.get('request_type'),
-            'details': request.form.get('details'),
-            'delivery': request.form.get('delivery'),
-        })
         template_file = 'general_request_template.txt'
+        keys = ['request_type', 'details', 'delivery']
+        for k in keys:
+            data[k] = request.form.get(k)
 
     else:
         flash("Invalid service submission.")
         return redirect(url_for('welcome'))
 
-    # Generate document
+    # Generate Document
     file_path = generate_doc(data, template_file, service_type)
 
-    # Send email with attachment, handle errors gracefully
+    # Send Email via Resend
     try:
-        send_email_with_attachment(data, file_path, service_type)
-        flash("Form submitted successfully! Check your email for confirmation.")
+        send_email_via_resend(data, file_path, service_type)
+        flash("Form submitted successfully! Your document has been emailed.")
     except Exception as e:
         print(f"❌ Email sending failed: {e}")
-        flash("Form submitted but failed to send email. We will contact you soon.")
+        flash("Form submitted, but email sending failed. We will contact you soon.")
 
     return render_template('success.html', file_name=os.path.basename(file_path))
 
@@ -143,10 +138,16 @@ def download_file(file_name):
     return send_file(path, as_attachment=True)
 
 
+# ============================
+# DOCUMENT GENERATION
+# ============================
 
 def generate_doc(data, template_file, service_type):
-    with open(os.path.join('templates', template_file), 'r', encoding='utf-8') as f:
+    """Generate a .docx file from a text template."""
+    template_path = os.path.join('templates', template_file)
+    with open(template_path, 'r', encoding='utf-8') as f:
         template_text = f.read()
+
     template = Template(template_text)
     rendered = template.render(data)
 
@@ -156,55 +157,72 @@ def generate_doc(data, template_file, service_type):
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     safe_name = data.get('client_name', 'client').replace(' ', '_')
+
     file_name = f"{service_type}_{safe_name}_{timestamp}.docx"
     file_path = os.path.join('generated_docs', file_name)
+
     doc.save(file_path)
     return file_path
 
 
-def send_email_with_attachment(data, file_path, service_type):
-    if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
-        raise Exception("Email credentials are not set in environment variables.")
+# ============================
+# EMAIL (RESEND API)
+# ============================
 
-    msg = EmailMessage()
-    msg['Subject'] = f"New {service_type.replace('_', ' ').title()} Submission from {data.get('client_name')}"
-    msg['From'] = EMAIL_ADDRESS
-    msg['To'] = RECEIVER_EMAIL
+def send_email_via_resend(data, file_path, service_type):
+    if not RESEND_API_KEY:
+        raise Exception("RESEND_API_KEY is not set in environment variables.")
+    if not EMAIL_SENDER:
+        raise Exception("EMAIL_SENDER is not set.")
+    if not RECEIVER_EMAIL:
+        raise Exception("RECEIVER_EMAIL is not set.")
 
-    # Set Reply-To so you can reply directly to the client
-    if data.get('email'):
-        msg['Reply-To'] = data.get('email')
+    url = "https://api.resend.com/emails"
 
-    # Email body
-    body = f"""
-New {service_type.replace('_', ' ').title()} submission received.
+    with open(file_path, "rb") as f:
+        file_data = f.read()
 
-Client Name: {data.get('client_name')}
-Phone Number: {data.get('phone_number')}
+    filename = os.path.basename(file_path)
+
+    payload = {
+        "from": EMAIL_SENDER,
+        "to": [RECEIVER_EMAIL],
+        "subject": f"New {service_type.replace('_', ' ').title()} Submission",
+        "text": f"""
+New submission received.
+
+Client: {data.get('client_name')}
+Phone: {data.get('phone_number')}
 Email: {data.get('email')}
 Submitted At: {data.get('submission_date')}
 
-Please find the attached document for more details.
-    """
-    msg.set_content(body)
+Document attached.
+        """,
+        "attachments": [
+            {
+                "filename": filename,
+                "content": file_data.decode("latin1"),
+                "disposition": "attachment"
+            }
+        ]
+    }
 
-    # Attach generated document
-    with open(file_path, 'rb') as f:
-        file_data = f.read()
-    filename = os.path.basename(file_path)
-    msg.add_attachment(
-        file_data,
-        maintype='application',
-        subtype='vnd.openxmlformats-officedocument.wordprocessingml.document',
-        filename=filename
-    )
+    headers = {
+        "Authorization": f"Bearer {RESEND_API_KEY}",
+        "Content-Type": "application/json"
+    }
 
-    # Send email
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-        smtp.send_message(msg)
-        print(f"✅ Email sent to {RECEIVER_EMAIL}")
+    response = requests.post(url, json=payload, headers=headers)
 
+    if response.status_code >= 400:
+        raise Exception(f"Resend API error: {response.text}")
+
+    print("✅ Email successfully sent via Resend.")
+
+
+# ============================
+# RUN APP
+# ============================
 
 if __name__ == '__main__':
     app.run(debug=True)
